@@ -3,86 +3,512 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BlueStreamX Local - Video Streaming</title>
+    <title>BlueStreamX | Premium Video Streaming</title>
+    <meta name="description" content="Platform streaming video premium dengan koleksi terlengkap">
+    <meta name="theme-color" content="#0f0f0f">
+    
+    <!-- Preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3b82f6',
+                        secondary: '#8b5cf6',
+                        accent: '#f59e0b',
+                        dark: {
+                            900: '#0a0a0a',
+                            800: '#0f0f0f',
+                            700: '#1a1a1a',
+                            600: '#242424',
+                            500: '#2a2a2a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Playfair Display', 'serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
     <style>
-        :root {
-            --dark-bg: #18191a;
-            --dark-card-bg: #242526;
-            --dark-text: #e4e6eb;
-            --dark-secondary-text: #b0b3b8;
-            --dark-border: #3e4042;
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        body {
-            background-color: var(--dark-bg);
-            color: var(--dark-text);
-            font-family: 'Inter', sans-serif;
+        ::-webkit-scrollbar-track {
+            background: #0a0a0a;
         }
-        .brand-title { font-family: 'Russo One', sans-serif; }
-        .video-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .video-card { transition: all 0.3s ease; }
-        .video-thumbnail { aspect-ratio: 16/9; object-fit: cover; }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(180deg, #3b82f6, #8b5cf6);
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(180deg, #2563eb, #7c3aed);
+        }
+        
+        /* Selection */
+        ::selection {
+            background: rgba(59, 130, 246, 0.3);
+            color: white;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% 0; }
+            100% { background-position: 200% 0; }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(59, 130, 246, 0.6); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .animate-fade-in-up {
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+        
+        .animate-shimmer {
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            background-size: 200% 100%;
+            animation: shimmer 2s infinite;
+        }
+        
+        .animate-pulse-glow {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        .animate-float {
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Glass Effect */
+        .glass {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        
+        /* Card Hover Effect */
+        .video-card {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .video-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(59, 130, 246, 0.25);
+        }
+        .video-card:hover .video-overlay {
+            opacity: 1;
+        }
+        .video-card:hover .play-button {
+            transform: translate(-50%, -50%) scale(1);
+            opacity: 1;
+        }
+        
+        /* Loading Skeleton */
+        .skeleton {
+            background: linear-gradient(90deg, #1a1a1a 25%, #242424 50%, #1a1a1a 75%);
+            background-size: 200% 100%;
+            animation: shimmer 1.5s infinite;
+        }
+        
+        /* Button Styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s ease;
+        }
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Input Focus */
+        .input-search:focus {
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        }
+        
+        /* Background Pattern */
+        .bg-pattern {
+            background-image: 
+                radial-gradient(circle at 20% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.05) 0%, transparent 50%);
+        }
+        
+        /* Video Thumbnail */
+        .video-thumbnail {
+            aspect-ratio: 16/9;
+            object-fit: cover;
+            transition: transform 0.5s ease;
+        }
+        .video-card:hover .video-thumbnail {
+            transform: scale(1.1);
+        }
+        
+        /* Modal */
+        .modal-backdrop {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+        
+        /* Progress Bar */
+        .progress-bar {
+            background: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            transition: width 0.3s ease;
+        }
+        
+        /* Toast */
+        .toast {
+            animation: fadeInUp 0.3s ease-out;
+        }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="bg-dark-900 text-white min-h-screen font-sans antialiased">
+    
+    <!-- Background Pattern -->
+    <div class="fixed inset-0 bg-pattern pointer-events-none"></div>
+    
     <!-- Header -->
-    <header class="bg-[#242526] border-b border-[#3e4042] shadow-lg sticky top-0 z-50">
-        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <img src="https://cdn2.vid3y.vip/assets/logo.png" alt="Logo" class="w-10 h-10 rounded">
-                <h1 class="brand-title text-xl text-blue-500">BlueStreamX</h1>
+    <header class="sticky top-0 z-50 glass border-b border-white/5">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="flex items-center justify-between h-16 lg:h-20">
+                <!-- Logo -->
+                <div class="flex items-center gap-3">
+                    <div class="relative">
+                        <div class="w-10 h-10 lg:w-12 lg:h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center animate-pulse-glow">
+                            <i class="fas fa-play text-white text-lg lg:text-xl"></i>
+                        </div>
+                    </div>
+                    <div>
+                        <h1 class="font-display text-xl lg:text-2xl font-bold gradient-text">BlueStreamX</h1>
+                        <p class="text-[10px] lg:text-xs text-gray-500 -mt-1">Premium Streaming</p>
+                    </div>
+                </div>
+                
+                <!-- Search Bar -->
+                <div class="hidden md:flex flex-1 max-w-xl mx-8">
+                    <div class="relative w-full">
+                        <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                        <input 
+                            type="text" 
+                            id="searchInput"
+                            placeholder="Cari video favorit Anda..."
+                            class="input-search w-full bg-dark-700 border border-white/10 rounded-full py-3 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-all"
+                        >
+                    </div>
+                </div>
+                
+                <!-- Right Menu -->
+                <div class="flex items-center gap-3">
+                    <button id="themeToggle" class="w-10 h-10 rounded-full bg-dark-700 border border-white/10 flex items-center justify-center hover:bg-dark-600 transition-colors">
+                        <i class="fas fa-moon text-gray-400"></i>
+                    </button>
+                    <button class="btn-primary px-6 py-2.5 rounded-full text-sm font-semibold">
+                        <i class="fas fa-crown mr-2"></i>Premium
+                    </button>
+                </div>
             </div>
-            <div class="flex items-center gap-4">
-                <input type="text" id="searchInput" placeholder="Cari video..." 
-                    class="bg-[#3a3b3c] text-white px-4 py-2 rounded-full border-none outline-none w-64">
-                <span id="totalVideos" class="text-sm text-gray-400"></span>
+            
+            <!-- Mobile Search -->
+            <div class="md:hidden pb-4">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                    <input 
+                        type="text" 
+                        id="searchInputMobile"
+                        placeholder="Cari video..."
+                        class="input-search w-full bg-dark-700 border border-white/10 rounded-full py-2.5 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-all"
+                    >
+                </div>
             </div>
         </div>
     </header>
-
+    
+    <!-- Hero Section -->
+    <section class="relative py-12 lg:py-20 overflow-hidden">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto animate-fade-in-up">
+                <div class="inline-flex items-center gap-2 bg-dark-700/50 border border-white/10 rounded-full px-4 py-2 mb-6">
+                    <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                    <span class="text-sm text-gray-400">Live Streaming Available</span>
+                </div>
+                <h2 class="font-display text-4xl lg:text-6xl font-bold mb-6 leading-tight">
+                    Streaming Video
+                    <span class="gradient-text">Premium</span>
+                </h2>
+                <p class="text-gray-400 text-lg mb-8">
+                    Nikmati ribuan video berkualitas tinggi dengan streaming tanpa batas. 
+                    Update setiap hari dengan konten terbaru.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4">
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <i class="fas fa-film text-primary"></i>
+                        <span id="totalVideosCount">Loading...</span>
+                    </div>
+                    <div class="w-px h-4 bg-gray-700"></div>
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <i class="fas fa-hd text-secondary"></i>
+                        <span>HD Quality</span>
+                    </div>
+                    <div class="w-px h-4 bg-gray-700"></div>
+                    <div class="flex items-center gap-2 text-sm text-gray-500">
+                        <i class="fas fa-bolt text-accent"></i>
+                        <span>Fast Streaming</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Filter Bar -->
+    <section class="py-6 border-y border-white/5">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+                <!-- Category Tabs -->
+                <div class="flex items-center gap-2 overflow-x-auto pb-2">
+                    <button class="category-btn active px-5 py-2 rounded-full bg-primary/20 text-primary text-sm font-medium whitespace-nowrap transition-all hover:bg-primary/30">
+                        Semua
+                    </button>
+                    <button class="category-btn px-5 py-2 rounded-full bg-dark-700 text-gray-400 text-sm font-medium whitespace-nowrap transition-all hover:bg-dark-600">
+                        Trending
+                    </button>
+                    <button class="category-btn px-5 py-2 rounded-full bg-dark-700 text-gray-400 text-sm font-medium whitespace-nowrap transition-all hover:bg-dark-600">
+                        Terbaru
+                    </button>
+                    <button class="category-btn px-5 py-2 rounded-full bg-dark-700 text-gray-400 text-sm font-medium whitespace-nowrap transition-all hover:bg-dark-600">
+                        Populer
+                    </button>
+                </div>
+                
+                <!-- Sort & View -->
+                <div class="flex items-center gap-3">
+                    <select id="sortSelect" class="bg-dark-700 border border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none focus:border-primary/50 cursor-pointer">
+                        <option value="newest">Terbaru</option>
+                        <option value="oldest">Terlama</option>
+                        <option value="title">Judul A-Z</option>
+                    </select>
+                    <div class="hidden lg:flex items-center gap-1 bg-dark-700 rounded-lg p-1">
+                        <button id="gridView" class="view-btn active p-2 rounded-md bg-dark-600 text-primary transition-all">
+                            <i class="fas fa-th"></i>
+                        </button>
+                        <button id="listView" class="view-btn p-2 rounded-md text-gray-500 transition-all hover:text-white">
+                            <i class="fas fa-list"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    
     <!-- Main Content -->
-    <main class="container mx-auto px-4 py-8">
-        <div class="mb-6 flex items-center justify-between">
-            <h2 class="text-2xl font-bold">Video Terbaru</h2>
-            <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
-                <i class="fas fa-sync-alt mr-2"></i>Refresh
-            </button>
-        </div>
-
-        <!-- Video Grid -->
-        <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-            <!-- Videos will be loaded here -->
-        </div>
-
-        <!-- Pagination -->
-        <div id="pagination" class="flex justify-center gap-2 mt-8"></div>
-    </main>
-
-    <!-- Video Player Modal -->
-    <div id="playerModal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4">
-        <div class="bg-[#242526] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div class="p-4 border-b border-[#3e4042] flex justify-between items-center">
-                <h3 id="playerTitle" class="text-lg font-semibold truncate"></h3>
-                <button id="closePlayer" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+    <main class="py-8 lg:py-12">
+        <div class="container mx-auto px-4 lg:px-8">
+            
+            <!-- Video Grid -->
+            <div id="videoGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 lg:gap-6">
+                <!-- Loading Skeletons -->
+                <div class="video-skeleton col-span-full flex flex-col items-center justify-center py-20">
+                    <div class="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center animate-spin">
+                        <i class="fas fa-spinner text-2xl text-white"></i>
+                    </div>
+                    <p class="mt-4 text-gray-500">Memuat video...</p>
+                </div>
             </div>
-            <div class="aspect-video bg-black">
-                <video id="videoPlayer" controls class="w-full h-full" autoplay>
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <div class="p-4 flex gap-3">
-                <a id="downloadBtn" href="#" download class="flex-1 bg-green-600 hover:bg-green-700 py-2 rounded-lg text-center transition">
-                    <i class="fas fa-download mr-2"></i>Download
-                </a>
-                <button id="shareBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg transition">
-                    <i class="fas fa-share mr-2"></i>Share
+            
+            <!-- Load More -->
+            <div id="loadMoreContainer" class="hidden mt-12 text-center">
+                <button id="loadMoreBtn" class="btn-primary px-8 py-3 rounded-full font-semibold">
+                    <i class="fas fa-plus mr-2"></i>Muat Lebih Banyak
                 </button>
+            </div>
+            
+            <!-- Pagination -->
+            <div id="paginationContainer" class="hidden mt-12">
+                <div class="flex items-center justify-center gap-2" id="pagination">
+                    <!-- Pagination buttons -->
+                </div>
+            </div>
+            
+        </div>
+    </main>
+    
+    <!-- Video Player Modal -->
+    <div id="playerModal" class="fixed inset-0 z-50 hidden">
+        <div class="modal-backdrop absolute inset-0" id="modalBackdrop"></div>
+        <div class="relative flex items-center justify-center min-h-screen p-4">
+            <div class="glass w-full max-w-5xl rounded-2xl overflow-hidden shadow-2xl animate-fade-in-up">
+                <!-- Modal Header -->
+                <div class="flex items-center justify-between p-4 border-b border-white/10">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                            <i class="fas fa-play text-white"></i>
+                        </div>
+                        <div>
+                            <h3 id="playerTitle" class="font-semibold text-lg truncate max-w-md">Video Title</h3>
+                            <p class="text-xs text-gray-500">BlueStreamX Premium</p>
+                        </div>
+                    </div>
+                    <button id="closePlayer" class="w-10 h-10 rounded-full bg-dark-700 hover:bg-red-500/20 hover:text-red-500 flex items-center justify-center transition-all">
+                        <i class="fas fa-times text-lg"></i>
+                    </button>
+                </div>
+                
+                <!-- Video Player -->
+                <div class="relative bg-black aspect-video">
+                    <video 
+                        id="videoPlayer" 
+                        controls 
+                        class="w-full h-full"
+                        poster="https://via.placeholder.com/1280x720/0f0f0f/3b82f6?text=BlueStreamX"
+                    >
+                        Your browser does not support the video tag.
+                    </video>
+                    <!-- Loading Overlay -->
+                    <div id="playerLoading" class="absolute inset-0 bg-dark-900/80 flex items-center justify-center hidden">
+                        <div class="text-center">
+                            <i class="fas fa-spinner fa-spin text-4xl text-primary mb-4"></i>
+                            <p class="text-gray-400">Memuat video...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Modal Actions -->
+                <div class="p-4 flex flex-wrap items-center justify-between gap-4 border-t border-white/10">
+                    <div class="flex items-center gap-2">
+                        <button id="likeBtn" class="w-10 h-10 rounded-full bg-dark-700 hover:bg-primary/20 hover:text-primary flex items-center justify-center transition-all">
+                            <i class="fas fa-heart"></i>
+                        </button>
+                        <button id="shareBtn" class="w-10 h-10 rounded-full bg-dark-700 hover:bg-secondary/20 hover:text-secondary flex items-center justify-center transition-all">
+                            <i class="fas fa-share-alt"></i>
+                        </button>
+                        <button id="bookmarkBtn" class="w-10 h-10 rounded-full bg-dark-700 hover:bg-accent/20 hover:text-accent flex items-center justify-center transition-all">
+                            <i class="fas fa-bookmark"></i>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select id="qualitySelect" class="bg-dark-700 border border-white/10 rounded-lg px-4 py-2 text-sm focus:outline-none">
+                            <option value="auto">Auto</option>
+                            <option value="1080p">1080p HD</option>
+                            <option value="720p">720p</option>
+                            <option value="480p">480p</option>
+                        </select>
+                        <a id="downloadBtn" href="#" download class="btn-primary px-6 py-2 rounded-full text-sm font-semibold flex items-center gap-2">
+                            <i class="fas fa-download"></i>
+                            <span>Download</span>
+                        </a>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
+    
+    <!-- Toast Notification -->
+    <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3"></div>
+    
+    <!-- Footer -->
+    <footer class="border-t border-white/5 py-12 mt-8">
+        <div class="container mx-auto px-4 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center">
+                            <i class="fas fa-play text-white"></i>
+                        </div>
+                        <span class="font-display text-xl font-bold gradient-text">BlueStreamX</span>
+                    </div>
+                    <p class="text-sm text-gray-500">Platform streaming video premium terbaik Indonesia.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Navigasi</h4>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">Beranda</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Trending</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Terbaru</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Bantuan</h4>
+                    <ul class="space-y-2 text-sm text-gray-500">
+                        <li><a href="#" class="hover:text-white transition-colors">FAQ</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Kontak</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Syarat & Ketentuan</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold mb-4">Ikuti Kami</h4>
+                    <div class="flex items-center gap-3">
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark-700 hover:bg-primary flex items-center justify-center transition-all">
+                            <i class="fab fa-telegram"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark-700 hover:bg-green-500 flex items-center justify-center transition-all">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-full bg-dark-700 hover:bg-pink-500 flex items-center justify-center transition-all">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="pt-8 border-t border-white/5 text-center text-sm text-gray-600">
+                <p>&copy; 2024 BlueStreamX. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
     <script src="app.js"></script>
 </body>
 </html>
