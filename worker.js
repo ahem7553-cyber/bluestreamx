@@ -1,6 +1,6 @@
 /**
  * BlueStreamX - Premium Video Streaming
- * Cloudflare Workers Handler
+ * Cloudflare Workers Handler - Fixed Version
  */
 
 export default {
@@ -76,7 +76,7 @@ export default {
       }
     }
     
-    // Serve HTML Page
+    // Serve HTML Page for all other routes
     const htmlPage = `<!DOCTYPE html>
 <html lang="id">
 <head>
@@ -98,28 +98,17 @@ export default {
                         primary: '#3b82f6',
                         secondary: '#8b5cf6',
                         accent: '#f59e0b',
-                        dark: {
-                            900: '#0a0a0a',
-                            800: '#0f0f0f',
-                            700: '#1a1a1a',
-                            600: '#242424',
-                            500: '#2a2a2a'
-                        }
+                        dark: { 900: '#0a0a0a', 800: '#0f0f0f', 700: '#1a1a1a', 600: '#242424', 500: '#2a2a2a' }
                     },
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        display: ['Playfair Display', 'serif']
-                    }
+                    fontFamily: { sans: ['Inter', 'sans-serif'], display: ['Playfair Display', 'serif'] }
                 }
             }
         }
     </script>
     <style>
-        ::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-track{background:#0a0a0a}::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#3b82f6,#8b5cf6);border-radius:4px}::-webkit-scrollbar-thumb:hover{background:linear-gradient(180deg,#2563eb,#7c3aed)}
+        ::-webkit-scrollbar{width:8px}::-webkit-scrollbar-track{background:#0a0a0a}::-webkit-scrollbar-thumb{background:linear-gradient(180deg,#3b82f6,#8b5cf6);border-radius:4px}
         ::selection{background:rgba(59,130,246,0.3);color:white}
         @keyframes fadeInUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-        @keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
-        @keyframes pulse-glow{0%,100%{box-shadow:0 0 20px rgba(59,130,246,0.3)}50%{box-shadow:0 0 40px rgba(59,130,246,0.6)}}
         .animate-fade-in-up{animation:fadeInUp 0.6s ease-out forwards}
         .gradient-text{background:linear-gradient(135deg,#3b82f6,#8b5cf6,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
         .glass{background:rgba(255,255,255,0.03);backdrop-filter:blur(20px);border:1px solid rgba(255,255,255,0.08)}
@@ -131,7 +120,7 @@ export default {
         .btn-primary{background:linear-gradient(135deg,#3b82f6,#8b5cf6);transition:all 0.3s ease;position:relative;overflow:hidden}
         .btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(59,130,246,0.4)}
         .input-search:focus{box-shadow:0 0 0 3px rgba(59,130,246,0.3)}
-        .bg-pattern{background-image:radial-gradient(circle at 20% 50%,rgba(59,130,246,0.1) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(139,92,246,0.1) 0%,transparent 50%),radial-gradient(circle at 40% 20%,rgba(236,72,153,0.05) 0%,transparent 50%)}
+        .bg-pattern{background-image:radial-gradient(circle at 20% 50%,rgba(59,130,246,0.1) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(139,92,246,0.1) 0%,transparent 50%)}
         .video-thumbnail{aspect-ratio:16/9;object-fit:cover;transition:transform 0.5s ease}
         .modal-backdrop{background:rgba(0,0,0,0.9);backdrop-filter:blur(10px)}
         .line-clamp-2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
@@ -164,6 +153,12 @@ export default {
                     </button>
                 </div>
             </div>
+            <div class="md:hidden pb-4">
+                <div class="relative">
+                    <i class="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-gray-500"></i>
+                    <input type="text" id="searchInputMobile" placeholder="Cari video..." class="input-search w-full bg-dark-700 border border-white/10 rounded-full py-2.5 pl-12 pr-4 text-sm focus:outline-none focus:border-primary/50 transition-all">
+                </div>
+            </div>
         </div>
     </header>
     
@@ -190,7 +185,7 @@ export default {
                     <div class="w-16 h-16 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center animate-pulse">
                         <i class="fas fa-spinner fa-spin text-2xl text-white"></i>
                     </div>
-                    <p class="mt-4 text-gray-500">Memuat video...</p>
+                    <p class="mt-4 text-gray-500">Memuat video premium...</p>
                 </div>
             </div>
             <div id="paginationContainer" class="hidden mt-12">
@@ -230,100 +225,126 @@ export default {
     
     <div id="toastContainer" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3"></div>
     
+    <footer class="border-t border-white/5 py-8 mt-8">
+        <div class="container mx-auto px-4 text-center">
+            <p class="text-sm text-gray-600">&copy; 2024 BlueStreamX. All rights reserved.</p>
+        </div>
+    </footer>
+    
     <script>
-        const CONFIG={cdnUrl:'/api/videos',videosPerPage:24};
-        let videos=[],filteredVideos=[],currentPage=1;
-        const $=id=>document.getElementById(id);
-        const formatDuration=s=>{const m=Math.floor(s/60),sec=s%60;return m+':'+String(sec).padStart(2,'0')};
-        const formatNumber=n=>n>=1000000?(n/1000000).toFixed(1)+'M':n>=1000?(n/1000).toFixed(1)+'K':n.toString();
-        const toast=(msg,type='info')=>{
-            const colors={success:'from-green-500 to-emerald-600',error:'from-red-500 to-rose-600',info:'from-blue-500 to-indigo-600'};
-            const icons={success:'fa-check-circle',error:'fa-times-circle',info:'fa-info-circle'};
-            const t=document.createElement('div');
-            t.className='toast flex items-center gap-3 px-5 py-3 rounded-xl glass border border-white/10 shadow-lg';
-            t.innerHTML='<div class="w-8 h-8 rounded-full bg-gradient-to-br '+colors[type]+' flex items-center justify-center"><i class="fas '+icons[type]+' text-white text-sm"></i></div><p class="text-sm">'+msg+'</p>';
-            $('toastContainer').appendChild(t);
-            setTimeout(()=>{t.style.opacity='0';t.style.transform='translateX(100%)';t.style.transition='all 0.3s ease';setTimeout(()=>t.remove(),300)},3000);
+        const CONFIG = { videosPerPage: 24 };
+        let videos = [], filteredVideos = [], currentPage = 1;
+        const $ = id => document.getElementById(id);
+        
+        const formatDuration = s => {
+            const m = Math.floor(s / 60);
+            const sec = s % 60;
+            return m + ':' + String(sec).padStart(2, '0');
         };
         
-        function createCard(v,i){
-            const c=document.createElement('div');
-            c.className='video-card group relative bg-dark-800 rounded-xl overflow-hidden border border-white/5 cursor-pointer animate-fade-in-up';
-            c.style.animationDelay=(i*50)+'ms';
-            c.style.opacity='0';
-            c.innerHTML='<div class="relative overflow-hidden"><img src="'+v.thumbnail+'" alt="'+v.title+'" class="video-thumbnail w-full bg-dark-700" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-transparent opacity-60"></div><div class="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-medium">'+formatDuration(v.duration)+'</div><div class="absolute top-2 left-2 bg-gradient-to-r from-primary to-secondary px-2 py-0.5 rounded text-[10px] font-bold uppercase">HD</div><div class="video-overlay absolute inset-0 bg-dark-900/40 flex items-center justify-center opacity-0 transition-opacity"><div class="play-button w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 scale-50 opacity-0 transition-all"><i class="fas fa-play text-white text-xl ml-1"></i></div></div></div><div class="p-3"><h3 class="font-medium text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors">'+v.title+'</h3><div class="flex items-center justify-between text-xs text-gray-500"><div class="flex items-center gap-1"><i class="fas fa-eye text-[10px]"></i><span>'+formatNumber(v.views)+' views</span></div></div></div>';
-            c.onclick=()=>openPlayer(v);
+        const formatNumber = n => {
+            if (n >= 1000000) return (n / 1000000).toFixed(1) + 'M';
+            if (n >= 1000) return (n / 1000).toFixed(1) + 'K';
+            return n.toString();
+        };
+        
+        const toast = (msg, type = 'info') => {
+            const colors = { success: 'from-green-500 to-emerald-600', error: 'from-red-500 to-rose-600', info: 'from-blue-500 to-indigo-600' };
+            const icons = { success: 'fa-check-circle', error: 'fa-times-circle', info: 'fa-info-circle' };
+            const t = document.createElement('div');
+            t.className = 'toast flex items-center gap-3 px-5 py-3 rounded-xl glass border border-white/10 shadow-lg';
+            t.innerHTML = '<div class="w-8 h-8 rounded-full bg-gradient-to-br ' + colors[type] + ' flex items-center justify-center"><i class="fas ' + icons[type] + ' text-white text-sm"></i></div><p class="text-sm">' + msg + '</p>';
+            $('toastContainer').appendChild(t);
+            setTimeout(() => { t.style.opacity = '0'; t.style.transform = 'translateX(100%)'; t.style.transition = 'all 0.3s ease'; setTimeout(() => t.remove(), 300); }, 3000);
+        };
+        
+        function createCard(v, i) {
+            const c = document.createElement('div');
+            c.className = 'video-card group relative bg-dark-800 rounded-xl overflow-hidden border border-white/5 cursor-pointer animate-fade-in-up';
+            c.style.animationDelay = (i * 50) + 'ms';
+            c.style.opacity = '0';
+            c.innerHTML = '<div class="relative overflow-hidden"><img src="' + v.thumbnail + '" alt="' + v.title + '" class="video-thumbnail w-full bg-dark-700" loading="lazy"><div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-transparent to-transparent opacity-60"></div><div class="absolute bottom-2 right-2 bg-black/80 backdrop-blur-sm px-2 py-1 rounded-md text-xs font-medium">' + formatDuration(v.duration) + '</div><div class="absolute top-2 left-2 bg-gradient-to-r from-primary to-secondary px-2 py-0.5 rounded text-[10px] font-bold uppercase">HD</div><div class="video-overlay absolute inset-0 bg-dark-900/40 flex items-center justify-center opacity-0 transition-opacity"><div class="play-button w-14 h-14 rounded-full bg-primary/90 flex items-center justify-center transform -translate-x-1/2 -translate-y-1/2 absolute top-1/2 left-1/2 scale-50 opacity-0 transition-all"><i class="fas fa-play text-white text-xl ml-1"></i></div></div></div><div class="p-3"><h3 class="font-medium text-sm line-clamp-2 mb-2 group-hover:text-primary transition-colors">' + v.title + '</h3><div class="flex items-center justify-between text-xs text-gray-500"><div class="flex items-center gap-1"><i class="fas fa-eye text-[10px]"></i><span>' + formatNumber(v.views) + ' views</span></div></div></div>';
+            c.onclick = () => openPlayer(v);
             return c;
         }
         
-        function openPlayer(v){
-            $('playerTitle').textContent=v.title;
-            $('videoPlayer').src=v.url;
-            $('downloadBtn').href=v.url;
-            $('downloadBtn').download=v.title.replace(/\\s+/g,'-')+'.mp4';
+        function openPlayer(v) {
+            $('playerTitle').textContent = v.title;
+            $('videoPlayer').src = v.url;
+            $('downloadBtn').href = v.url;
+            $('downloadBtn').download = v.title.replace(/\\s+/g, '-') + '.mp4';
             $('playerModal').classList.remove('hidden');
-            document.body.style.overflow='hidden';
-            toast('Memutar: '+v.title);
+            document.body.style.overflow = 'hidden';
+            toast('Memutar: ' + v.title);
         }
         
-        function closePlayer(){
+        function closePlayer() {
             $('playerModal').classList.add('hidden');
             $('videoPlayer').pause();
-            document.body.style.overflow='';
+            document.body.style.overflow = '';
         }
         
-        function renderVideos(){
-            const grid=$('videoGrid');
-            grid.innerHTML='';
-            const start=(currentPage-1)*CONFIG.videosPerPage;
-            const vids=filteredVideos.slice(start,start+CONFIG.videosPerPage);
-            if(!vids.length){grid.innerHTML='<div class="col-span-full text-center py-20"><p class="text-gray-500">Tidak ada video ditemukan</p></div>';return}
-            vids.forEach((v,i)=>grid.appendChild(createCard(v,i)));
+        function renderVideos() {
+            const grid = $('videoGrid');
+            grid.innerHTML = '';
+            const start = (currentPage - 1) * CONFIG.videosPerPage;
+            const vids = filteredVideos.slice(start, start + CONFIG.videosPerPage);
+            if (!vids.length) {
+                grid.innerHTML = '<div class="col-span-full text-center py-20"><p class="text-gray-500">Tidak ada video ditemukan</p></div>';
+                return;
+            }
+            vids.forEach((v, i) => grid.appendChild(createCard(v, i)));
             renderPagination();
         }
         
-        function renderPagination(){
-            const pages=Math.ceil(filteredVideos.length/CONFIG.videosPerPage);
-            const p=$('pagination');
-            p.innerHTML='';
-            if(pages<=1){$('paginationContainer').classList.add('hidden');return}
+        function renderPagination() {
+            const pages = Math.ceil(filteredVideos.length / CONFIG.videosPerPage);
+            const p = $('pagination');
+            p.innerHTML = '';
+            if (pages <= 1) { $('paginationContainer').classList.add('hidden'); return; }
             $('paginationContainer').classList.remove('hidden');
-            for(let i=1;i<=Math.min(pages,10);i++){
-                const b=document.createElement('button');
-                b.className='w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all '+(i===currentPage?'bg-gradient-to-br from-primary to-secondary text-white':'bg-dark-700 text-gray-400 hover:bg-dark-600 hover:text-white');
-                b.textContent=i;
-                b.onclick=()=>{currentPage=i;renderVideos();window.scrollTo({top:0,behavior:'smooth'})};
+            for (let i = 1; i <= Math.min(pages, 10); i++) {
+                const b = document.createElement('button');
+                b.className = 'w-10 h-10 rounded-lg flex items-center justify-center text-sm font-medium transition-all ' + (i === currentPage ? 'bg-gradient-to-br from-primary to-secondary text-white' : 'bg-dark-700 text-gray-400 hover:bg-dark-600 hover:text-white');
+                b.textContent = i;
+                b.onclick = () => { currentPage = i; renderVideos(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
                 p.appendChild(b);
             }
         }
         
-        async function init(){
-            try{
-                const res=await fetch(CONFIG.cdnUrl);
-                const data=await res.json();
-                videos=data.videos;
-                filteredVideos=[...videos];
-                $('totalVideos').textContent=formatNumber(videos.length)+' Video Tersedia';
+        async function init() {
+            try {
+                const res = await fetch('/api/videos');
+                const data = await res.json();
+                if (!data.success) throw new Error(data.error);
+                videos = data.videos;
+                filteredVideos = [...videos];
+                $('totalVideos').textContent = formatNumber(videos.length) + ' Video Tersedia';
                 renderVideos();
-                toast.success('Berhasil memuat '+videos.length+' video');
-            }catch(e){
-                $('videoGrid').innerHTML='<div class="col-span-full text-center py-20"><p class="text-red-400">Gagal memuat video</p></div>';
-                toast.error('Gagal memuat video');
+                toast.success('Berhasil memuat ' + videos.length + ' video');
+            } catch (e) {
+                $('videoGrid').innerHTML = '<div class="col-span-full text-center py-20"><div class="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mx-auto mb-4"><i class="fas fa-exclamation-triangle text-3xl text-red-500"></i></div><p class="text-red-400 mb-2">Gagal memuat video</p><p class="text-sm text-gray-600 mb-4">' + e.message + '</p><button onclick="init()" class="btn-primary px-6 py-2 rounded-full text-sm"><i class="fas fa-redo mr-2"></i>Coba Lagi</button></div>';
+                toast.error('Gagal memuat video: ' + e.message);
             }
         }
         
-        $('searchInput').addEventListener('input',e=>{
-            const q=e.target.value.toLowerCase().trim();
-            filteredVideos=q?videos.filter(v=>v.title.toLowerCase().includes(q)):[...videos];
-            currentPage=1;
+        $('searchInput').addEventListener('input', e => {
+            const q = e.target.value.toLowerCase().trim();
+            filteredVideos = q ? videos.filter(v => v.title.toLowerCase().includes(q)) : [...videos];
+            currentPage = 1;
             renderVideos();
         });
         
-        $('closePlayer').onclick=closePlayer;
-        $('modalBackdrop').onclick=closePlayer;
-        $('shareBtn').onclick=()=>{navigator.clipboard.writeText($('videoPlayer').src);toast.success('Link disalin!')};
-        $('likeBtn').onclick=()=>{$('likeBtn').classList.toggle('text-red-500');$('likeBtn').classList.toggle('bg-red-500/20');toast.success($('likeBtn').classList.contains('text-red-500')?'Disukai!':'Batal menyukai')};
-        document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('playerModal').classList.contains('hidden'))closePlayer()});
+        $('searchInputMobile').addEventListener('input', e => {
+            $('searchInput').value = e.target.value;
+            e.target.dispatchEvent(new Event('input'));
+        });
+        
+        $('closePlayer').onclick = closePlayer;
+        $('modalBackdrop').onclick = closePlayer;
+        $('shareBtn').onclick = () => { navigator.clipboard.writeText($('videoPlayer').src); toast.success('Link disalin!'); };
+        $('likeBtn').onclick = () => { $('likeBtn').classList.toggle('text-red-500'); $('likeBtn').classList.toggle('bg-red-500/20'); toast.success($('likeBtn').classList.contains('text-red-500') ? 'Disukai!' : 'Batal menyukai'); };
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && !$('playerModal').classList.contains('hidden')) closePlayer(); });
         
         init();
     </script>
