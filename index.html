@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BlueStreamX Local - Video Streaming</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Russo+One&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        :root {
+            --dark-bg: #18191a;
+            --dark-card-bg: #242526;
+            --dark-text: #e4e6eb;
+            --dark-secondary-text: #b0b3b8;
+            --dark-border: #3e4042;
+        }
+        body {
+            background-color: var(--dark-bg);
+            color: var(--dark-text);
+            font-family: 'Inter', sans-serif;
+        }
+        .brand-title { font-family: 'Russo One', sans-serif; }
+        .video-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .video-card { transition: all 0.3s ease; }
+        .video-thumbnail { aspect-ratio: 16/9; object-fit: cover; }
+    </style>
+</head>
+<body class="min-h-screen">
+    <!-- Header -->
+    <header class="bg-[#242526] border-b border-[#3e4042] shadow-lg sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <img src="https://cdn2.vid3y.vip/assets/logo.png" alt="Logo" class="w-10 h-10 rounded">
+                <h1 class="brand-title text-xl text-blue-500">BlueStreamX</h1>
+            </div>
+            <div class="flex items-center gap-4">
+                <input type="text" id="searchInput" placeholder="Cari video..." 
+                    class="bg-[#3a3b3c] text-white px-4 py-2 rounded-full border-none outline-none w-64">
+                <span id="totalVideos" class="text-sm text-gray-400"></span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <div class="mb-6 flex items-center justify-between">
+            <h2 class="text-2xl font-bold">Video Terbaru</h2>
+            <button id="refreshBtn" class="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg transition">
+                <i class="fas fa-sync-alt mr-2"></i>Refresh
+            </button>
+        </div>
+
+        <!-- Video Grid -->
+        <div id="videoGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            <!-- Videos will be loaded here -->
+        </div>
+
+        <!-- Pagination -->
+        <div id="pagination" class="flex justify-center gap-2 mt-8"></div>
+    </main>
+
+    <!-- Video Player Modal -->
+    <div id="playerModal" class="fixed inset-0 bg-black/90 z-50 hidden items-center justify-center p-4">
+        <div class="bg-[#242526] rounded-lg max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div class="p-4 border-b border-[#3e4042] flex justify-between items-center">
+                <h3 id="playerTitle" class="text-lg font-semibold truncate"></h3>
+                <button id="closePlayer" class="text-gray-400 hover:text-white text-2xl">&times;</button>
+            </div>
+            <div class="aspect-video bg-black">
+                <video id="videoPlayer" controls class="w-full h-full" autoplay>
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <div class="p-4 flex gap-3">
+                <a id="downloadBtn" href="#" download class="flex-1 bg-green-600 hover:bg-green-700 py-2 rounded-lg text-center transition">
+                    <i class="fas fa-download mr-2"></i>Download
+                </a>
+                <button id="shareBtn" class="flex-1 bg-blue-600 hover:bg-blue-700 py-2 rounded-lg transition">
+                    <i class="fas fa-share mr-2"></i>Share
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
